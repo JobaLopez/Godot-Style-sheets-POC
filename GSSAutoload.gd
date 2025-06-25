@@ -14,7 +14,6 @@ var file_dialog: EditorFileDialog
 #-----------------------------------------------------------------------------
 
 func _enter_tree():
-    # El código de la UI no cambia
     dock = VBoxContainer.new()
     dock.name = "GSS Themer"
     var hbox = HBoxContainer.new()
@@ -56,11 +55,10 @@ func _on_file_selected(path: String):
     path_line_edit.text = path
 
 #-----------------------------------------------------------------------------
-# LÓGICA PRINCIPAL (Ahora mucho más limpia)
+# MAIN LOGIC
 #-----------------------------------------------------------------------------
 
 func process_stylesheet() -> void:
-    # 1. Validar el archivo de entrada
     if gss_file_path.is_empty() or not FileAccess.file_exists(gss_file_path):
         push_error("[GSS] No valid GSS file has been selected.")
         return
@@ -70,14 +68,11 @@ func process_stylesheet() -> void:
         push_error("[GSS] The GSS file is empty or could not be read.")
         return
 
-    # 2. Usar el Parser para obtener datos estructurados
     var parsed_data: Dictionary = GSSParser.parse_stylesheet(raw_gss)
     print("GSS Parsed: ", parsed_data)
 
-    # 3. Usar el Themer para generar el recurso Theme
     var new_theme: Theme = GSSThemer.create_theme_from_styles(parsed_data)
 
-    # 4. Guardar el resultado
     var save_path := "res://my_generated_theme.theme"
     var result := ResourceSaver.save(new_theme, save_path)
 
