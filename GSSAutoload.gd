@@ -20,6 +20,7 @@ func _enter_tree():
     dock = VBoxContainer.new()
     dock.name = "GSS Themer"
 
+    # INPUT FILE UI
     var hbox = HBoxContainer.new()
     path_line_edit = LineEdit.new()
     path_line_edit.placeholder_text = "Select a .txt file"
@@ -48,7 +49,6 @@ func _enter_tree():
     folder_box.add_child(folder_browse_button)
     dock.add_child(folder_box)
 
-    # Folder dialog setup
     folder_dialog = EditorFileDialog.new()
     folder_dialog.file_mode = EditorFileDialog.FILE_MODE_OPEN_DIR
     dock.add_child(folder_dialog)
@@ -56,7 +56,7 @@ func _enter_tree():
     folder_browse_button.pressed.connect(_on_folder_browse_pressed)
     folder_dialog.dir_selected.connect(_on_folder_selected)
 
-    
+    # OUTPUT THEME NAME UI
     var out_name_box = HBoxContainer.new()
     var out_label = Label.new()
     out_label.text = "Output Theme Name:"
@@ -67,6 +67,7 @@ func _enter_tree():
     out_name_box.add_child(output_name_line_edit)
     dock.add_child(out_name_box)
 
+    # GENERATE THEME BUTTON
     var generate_button = Button.new()
     generate_button.text = "Generate Theme from GSS"
     dock.add_child(generate_button)
