@@ -4,11 +4,13 @@ extends EditorPlugin
 #-----------------------------------------------------------------------------
 # VARIABLES
 #-----------------------------------------------------------------------------
-var gss_file_path: String = ""
+var txt_file_path: String = ""
 var dock: VBoxContainer
 var path_line_edit: LineEdit
 var file_dialog: EditorFileDialog
-
+var output_name_line_edit: LineEdit
+var output_folder_line_edit: LineEdit
+var folder_dialog: EditorFileDialog
 
 #-----------------------------------------------------------------------------
 # PLUGIN LIFECYCLE
@@ -17,6 +19,7 @@ var file_dialog: EditorFileDialog
 func _enter_tree():
     dock = VBoxContainer.new()
     dock.name = "GSS Themer"
+
     var hbox = HBoxContainer.new()
     path_line_edit = LineEdit.new()
     path_line_edit.placeholder_text = "Select a .txt file"
@@ -27,6 +30,43 @@ func _enter_tree():
     search_button.text = "..."
     hbox.add_child(search_button)
     dock.add_child(hbox)
+
+    # OUTPUT FOLDER UI
+    var folder_box = HBoxContainer.new()
+    var folder_label = Label.new()
+    folder_label.text = "Output Folder:"
+    folder_box.add_child(folder_label)
+
+    output_folder_line_edit = LineEdit.new()
+    output_folder_line_edit.placeholder_text = "res:// (Default)"
+    output_folder_line_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    output_folder_line_edit.editable = false
+    folder_box.add_child(output_folder_line_edit)
+
+    var folder_browse_button = Button.new()
+    folder_browse_button.text = "..."
+    folder_box.add_child(folder_browse_button)
+    dock.add_child(folder_box)
+
+    # Folder dialog setup
+    folder_dialog = EditorFileDialog.new()
+    folder_dialog.file_mode = EditorFileDialog.FILE_MODE_OPEN_DIR
+    dock.add_child(folder_dialog)
+
+    folder_browse_button.pressed.connect(_on_folder_browse_pressed)
+    folder_dialog.dir_selected.connect(_on_folder_selected)
+
+    
+    var out_name_box = HBoxContainer.new()
+    var out_label = Label.new()
+    out_label.text = "Output Theme Name:"
+    out_name_box.add_child(out_label)
+    output_name_line_edit = LineEdit.new()
+    output_name_line_edit.placeholder_text = "e.g. my_ui_theme"
+    output_name_line_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    out_name_box.add_child(output_name_line_edit)
+    dock.add_child(out_name_box)
+
     var generate_button = Button.new()
     generate_button.text = "Generate Theme from GSS"
     dock.add_child(generate_button)
@@ -50,11 +90,11 @@ func _exit_tree():
 #-----------------------------------------------------------------------------
 
 func _on_search_button_pressed():
-    file_dialog.popup_centered()        
+    file_dialog.popup_centered()
 
 
 func _on_file_selected(path: String):
-    gss_file_path = path
+    txt_file_path = path
     path_line_edit.text = path
 
 
@@ -63,27 +103,41 @@ func _on_file_selected(path: String):
 #-----------------------------------------------------------------------------
 
 func process_stylesheet() -> void:
-    if gss_file_path.is_empty():
-        push_error("[GSS] No GSS file has been selected.")
+    if txt_file_path.is_empty():
+        push_error("[GSS] No .txt file has been selected.")
         return
 
-    if not FileAccess.file_exists(gss_file_path):
-        push_error("[GSS] Selected file does not exist: " + gss_file_path)
+    if not FileAccess.file_exists(txt_file_path):
+        push_error("[GSS] Selected file does not exist: " + txt_file_path)
         return
 
-    var file := FileAccess.open(gss_file_path, FileAccess.READ)
+    var file := FileAccess.open(txt_file_path, FileAccess.READ)
     if not file:
-        push_error("[GSS] Cannot open file: " + gss_file_path)
+        push_error("[GSS] Cannot open file: " + txt_file_path)
         return
+
+    var output_dir := output_folder_line_edit.text.strip_edges()
+    if output_dir.is_empty():
+        output_dir = "res://"
+
+
+    var user_theme_name := output_name_line_edit.text.strip_edges()
+    
+    if user_theme_name.is_empty():
+        push_error("[GSS] Output theme name cannot be empty.")
+        return
+    
+    if not user_theme_name.ends_with(".theme"):
+        user_theme_name += ".theme"
 
     var raw_gss := file.get_as_text()
     file.close()
 
     if raw_gss.strip_edges().is_empty():
-        push_error("[GSS] The GSS file is empty or could not be read.")
+        push_error("[GSS] The .txt file is empty or could not be read.")
         return
 
-    print("[GSS] Processing file: ", gss_file_path)
+    print("[GSS] Processing file: ", txt_file_path)
     print("[GSS] File content length: ", raw_gss.length())
 
     var parse_result: Dictionary = GSSParser.parse_stylesheet(raw_gss)
@@ -107,10 +161,17 @@ func process_stylesheet() -> void:
 
     var new_theme: Theme = GSSThemer.create_theme_from_styles(parsed_data)
 
-    var save_path := "res://my_generated_theme.theme"
+    var save_path := output_dir.path_join(user_theme_name)
+
     var result := ResourceSaver.save(new_theme, save_path)
 
     if result == OK:
         print("Theme saved successfully at: ", save_path)
     else:
         push_error("[GSS] Error saving theme at: " + save_path)
+
+func _on_folder_browse_pressed():
+    folder_dialog.popup_centered()
+
+func _on_folder_selected(folder_path: String):
+    output_folder_line_edit.text = folder_path
