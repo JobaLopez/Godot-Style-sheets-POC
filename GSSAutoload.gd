@@ -97,6 +97,11 @@ func _on_file_selected(path: String):
     txt_file_path = path
     path_line_edit.text = path
 
+func _on_folder_browse_pressed():
+    folder_dialog.popup_centered()
+
+func _on_folder_selected(folder_path: String):
+    output_folder_line_edit.text = folder_path
 
 #-----------------------------------------------------------------------------
 # MAIN LOGIC
@@ -169,9 +174,3 @@ func process_stylesheet() -> void:
         print("Theme saved successfully at: ", save_path)
     else:
         push_error("[GSS] Error saving theme at: " + save_path)
-
-func _on_folder_browse_pressed():
-    folder_dialog.popup_centered()
-
-func _on_folder_selected(folder_path: String):
-    output_folder_line_edit.text = folder_path
