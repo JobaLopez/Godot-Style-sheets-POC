@@ -59,17 +59,38 @@ func _on_file_selected(path: String):
 #-----------------------------------------------------------------------------
 
 func process_stylesheet() -> void:
-    if gss_file_path.is_empty() or not FileAccess.file_exists(gss_file_path):
-        push_error("[GSS] No valid GSS file has been selected.")
+    if gss_file_path.is_empty():
+        push_error("[GSS] No GSS file has been selected.")
+        return
+    
+    if not FileAccess.file_exists(gss_file_path):
+        push_error("[GSS] Selected file does not exist: " + gss_file_path)
         return
         
-    var raw_gss := FileAccess.open(gss_file_path, FileAccess.READ).get_as_text()
+    var file := FileAccess.open(gss_file_path, FileAccess.READ)
+    if not file:
+        push_error("[GSS] Cannot open file: " + gss_file_path)
+        return
+        
+    var raw_gss := file.get_as_text()
+    file.close()
+    
     if raw_gss.strip_edges().is_empty():
         push_error("[GSS] The GSS file is empty or could not be read.")
         return
 
-    var parsed_data: Dictionary = GSSParser.parse_stylesheet(raw_gss)
-    print("GSS Parsed: ", parsed_data)
+    print("[GSS] Processing file: ", gss_file_path)
+    print("[GSS] File content length: ", raw_gss.length())
+
+    var parse_result: Dictionary = GSSParser.parse_stylesheet(raw_gss)
+    
+    # If there are errors, we log them and stop processing
+    if parse_result.has_errors:
+        push_error("[GSS] Errors found in file. Theme generation stopped. Check console for details.")
+        return
+
+    var parsed_data: Dictionary = parse_result.styles
+    print("GSS Parsed successfully: ", parsed_data)
 
     var new_theme: Theme = GSSThemer.create_theme_from_styles(parsed_data)
 
