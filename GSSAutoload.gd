@@ -19,7 +19,7 @@ func _enter_tree():
     dock.name = "GSS Themer"
     var hbox = HBoxContainer.new()
     path_line_edit = LineEdit.new()
-    path_line_edit.placeholder_text = "Select a .gss or .txt file"
+    path_line_edit.placeholder_text = "Select a .txt file"
     path_line_edit.editable = false
     path_line_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     hbox.add_child(path_line_edit)
@@ -32,7 +32,6 @@ func _enter_tree():
     dock.add_child(generate_button)
     file_dialog = EditorFileDialog.new()
     file_dialog.file_mode = EditorFileDialog.FILE_MODE_OPEN_FILE
-    file_dialog.add_filter("*.gss", "Godot Stylesheet")
     file_dialog.add_filter("*.txt", "Text File")
     dock.add_child(file_dialog)
     search_button.pressed.connect(_on_search_button_pressed)

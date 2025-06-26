@@ -13,7 +13,7 @@ Godot Style Sheets (GSS) is an editor plugin that allows you to create Godot the
 
 - **Familiar CSS Syntax**: Write theme styles using CSS-like properties
 - **Editor Integration**: Built-in dock panel for easy theme generation
-- **File Format Support**: Works with `.gss` and `.txt` files
+- **File Format Support**: Works with `.txt` files
 - **Automatic Theme Generation**: Creates `.theme` resource files ready for use in Godot
 - **Modular Architecture**: Clean separation between parsing, styling, and UI components
 
@@ -21,7 +21,7 @@ Godot Style Sheets (GSS) is an editor plugin that allows you to create Godot the
 
 1. **Install the Plugin**: Add the plugin files to your project's `addons` folder
 2. **Enable the Plugin**: Activate it in Project Settings → Plugins
-3. **Write GSS Styles**: Create a `.gss` or `.txt` file with your CSS-like styles
+3. **Write GSS Styles**: Create a `.txt` file with your CSS-like styles
 4. **Generate Theme**: Use the GSS Themer dock to select your file and generate a `.theme` resource
 5. **Apply Theme**: Use the generated theme in your Godot project
 
